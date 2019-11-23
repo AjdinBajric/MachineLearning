@@ -24,6 +24,8 @@ num_test = len(X) - num_training
 X_train = np.array(X[:num_training]).reshape((num_training, 1))
 Y_train = np.array(Y[:num_training])
 
+print(X_train)
+print(Y_train)
 #Test data
 X_test = np.array(X[num_training:]).reshape((num_test, 1))
 Y_test = np.array(Y[num_training:])
