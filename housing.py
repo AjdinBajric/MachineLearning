@@ -24,39 +24,39 @@ def plot_feature_importances(feature_importances, title, feature_names):
 	plt.title(title)
 	plt.show()
 
+if __name__ == '__main__':
+	housing_data = datasets.load_boston()
+	X, y = shuffle(housing_data.data, housing_data.target, random_state = 7)
 
-housing_data = datasets.load_boston()
-X, y = shuffle(housing_data.data, housing_data.target, random_state = 7)
+	num_training = int(len(X) * 0.8)
 
-num_training = int(len(X) * 0.8)
+	X_train, y_train = X[:num_training], y[:num_training]
+	X_test, y_test = X[num_training:], y[num_training:]
 
-X_train, y_train = X[:num_training], y[:num_training]
-X_test, y_test = X[num_training:], y[num_training:]
+	print("Feature_names: ", housing_data.feature_names)
 
-print("Feature_names: ", housing_data.feature_names)
+	dt_regressor = DecisionTreeRegressor(max_depth = 4)
+	dt_regressor.fit(X_train, y_train)
 
-dt_regressor = DecisionTreeRegressor(max_depth = 4)
-dt_regressor.fit(X_train, y_train)
+	ab_regressor = AdaBoostRegressor(DecisionTreeRegressor(max_depth = 4), n_estimators = 400, random_state = 7)
+	ab_regressor.fit(X_train, y_train)
 
-ab_regressor = AdaBoostRegressor(DecisionTreeRegressor(max_depth = 4), n_estimators = 400, random_state = 7)
-ab_regressor.fit(X_train, y_train)
+	y_pred_dt = dt_regressor.predict(X_test)
+	mse = mean_squared_error(y_pred_dt, y_test)
+	evs = explained_variance_score(y_pred_dt, y_test)
 
-y_pred_dt = dt_regressor.predict(X_test)
-mse = mean_squared_error(y_pred_dt, y_test)
-evs = explained_variance_score(y_pred_dt, y_test)
+	print("\nDecision Tree Performance: ")
+	print("\nMean squared error = ", round(mse, 2))
+	print("\nExplained Variance Score = ", round(evs, 2))
 
-print("\nDecision Tree Performance: ")
-print("\nMean squared error = ", round(mse, 2))
-print("\nExplained Variance Score = ", round(evs, 2))
+	y_pred_ab = ab_regressor.predict(X_test)
+	mse = mean_squared_error(y_test, y_pred_ab)
+	evs = explained_variance_score(y_test, y_pred_ab)
 
-y_pred_ab = ab_regressor.predict(X_test)
-mse = mean_squared_error(y_test, y_pred_ab)
-evs = explained_variance_score(y_test, y_pred_ab)
+	print("\nAdaBoost Performance: ")
+	print("\nMean squared error = ", round(mse, 2))
+	print("\nExplained Variance Score = ", round(evs, 2))
 
-print("\nAdaBoost Performance: ")
-print("\nMean squared error = ", round(mse, 2))
-print("\nExplained Variance Score = ", round(evs, 2))
-
-#Computing the relative importance of features
-plot_feature_importances(dt_regressor.feature_importances_, 'DecisionTreeRegressor', housing_data.feature_names)
-plot_feature_importances(ab_regressor.feature_importances_, 'AdaBoostRegressor', housing_data.feature_names)
+	#Computing the relative importance of features
+	plot_feature_importances(dt_regressor.feature_importances_, 'DecisionTreeRegressor', housing_data.feature_names)
+	plot_feature_importances(ab_regressor.feature_importances_, 'AdaBoostRegressor', housing_data.feature_names)
